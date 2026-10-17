@@ -1,5 +1,80 @@
-# Environments
-.venv
+# Python bytecode and interpreter cache files are generated automatically.
+__pycache__/
+*.py[cod]
+*$py.class
 
-# IDE settings
-.vscode
+# Virtual environments contain local interpreters and installed dependencies.
+# Create your own environment; do not commit it to the repository.
+.venv/
+venv/
+env/
+ENV/
+.env/
+
+# Local environment-variable files may contain secrets or machine-specific
+# settings. Keep shareable templates such as .env.example in version control.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Build and packaging output can be recreated from the source and project
+# configuration.
+build/
+dist/
+wheelhouse/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test runners and coverage tools write caches and reports locally.
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+nosetests.xml
+test-results/
+
+# Type checkers and linters may create local caches.
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+.hypothesis/
+.pyright/
+
+# Documentation builds are generated output, not documentation source.
+docs/_build/
+site/
+
+# Notebook checkpoints are temporary working state.
+.ipynb_checkpoints/
+
+# Python REPL and tool history is specific to an individual contributor.
+.python_history
+.ipython/
+
+# Logs, temporary files, and local databases are usually runtime output.
+*.log
+*.tmp
+*.temp
+*.sqlite
+*.sqlite3
+*.db
+
+# Editor and IDE settings are often personal; commit shared project settings
+# only when the team intentionally decides to track them.
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating-system metadata files are not part of the project.
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
