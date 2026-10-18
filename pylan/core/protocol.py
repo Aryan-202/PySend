@@ -1,10 +1,37 @@
-import json 
+"""Module for framing network messages with a binary header and variable
+payload.
+
+This module provides utility functions to pack structured message data (either
+JSON-serializable dictionaries or raw bytes) along with a fixed-size binary
+header, and to unpack the header back into its component metadata values.
+"""
+
+import json
 import struct
 
+# "!BI" translates to:
+# ! = Network byte order (Big-endian)
+# B = 1-byte unsigned char (Message Type)
+# I = 4-byte unsigned int (Payload Length)
 HEADER_FORMAT = "!BI"
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
+
 def pack_message(msg_type: int, payload: dict | bytes) -> bytes:
+    """Serializes a payload and prepends a fixed-size binary header.
+
+    Args:
+        msg_type: An integer representing the application-defined message type.
+        payload: The message body, which can be either a Python dictionary
+            (will be converted to JSON bytes) or raw bytes.
+
+    Returns:
+        A bytes object containing the packed header immediately followed by
+        the serialized payload bytes.
+
+    Raises:
+        TypeError: If the payload is neither a dictionary nor a bytes object.
+    """
     if isinstance(payload, dict):
         payload_bytes = json.dumps(payload).encode("utf-8")
     elif isinstance(payload, bytes):
@@ -18,6 +45,21 @@ def pack_message(msg_type: int, payload: dict | bytes) -> bytes:
 
     return header + payload_bytes
 
+
 def unpack_header(header_bytes: bytes) -> tuple[int, int]:
+    """Unpacks a raw byte stream into message metadata values.
+
+    Args:
+        header_bytes: A bytes object of exact length `HEADER_SIZE` (5 bytes).
+
+    Returns:
+        A tuple containing:
+            - msg_type (int): The application-defined message identifier.
+            - payload_length (int): The length of the upcoming payload in
+            bytes.
+
+    Raises:
+        struct.error: If `header_bytes` is not exactly equal to `HEADER_SIZE`.
+    """
     msg_type, payload_length = struct.unpack(HEADER_FORMAT, header_bytes)
     return msg_type, payload_length
