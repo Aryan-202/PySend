@@ -18,8 +18,14 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
+    "asyncio>=4.0.0",
+    "bleak>=3.0.2",
     "click>=8.5.0",
+    "psutil>=7.2.2",
     "pytest>=9.1.1",
+    "qrcode>=8.2",
+    "scapy>=2.8.0",
+    "zeroconf>=0.151.5",
 ]
 
 [project.scripts]
