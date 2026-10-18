@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pylan"
+name = "python-pylan"
 version = "0.0.1"
 description = "Cross-platform local network file and data sharing library."
 readme = "README.md"
@@ -19,4 +19,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Aryan-202/pylan"
+Homepage = "https://github.com/Aryan-202/python-pylan"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pylan"]
