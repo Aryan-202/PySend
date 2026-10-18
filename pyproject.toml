@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "python-pylan"
-version = "0.0.1"
+version = "0.0.2"
 description = "Cross-platform local network file and data sharing library."
 readme = "README.md"
 requires-python = ">=3.9"
