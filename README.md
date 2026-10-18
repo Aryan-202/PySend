@@ -1,6 +1,6 @@
-# PySend
+# PyLan
 
-PySend is a project for transferring files, folders, and other data between nearby devices connected to the same local network. It is being developed as a cross-platform application in Python, with the goal of making local sharing straightforward and accessible.
+PyLan is a project for transferring files, folders, and other data between nearby devices connected to the same local network. It is being developed as a cross-platform application in Python, with the goal of making local sharing straightforward and accessible.
 
 ## Project goals
 
