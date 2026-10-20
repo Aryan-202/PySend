@@ -16,6 +16,12 @@ import struct
 HEADER_FORMAT = "!BI"
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
+MSG_TYPE_TRANSFER_REQUEST = 20
+MSG_TYPE_TRANSFER_ACCEPT = 21
+MSG_TYPE_TRANSFER_REJECT = 22
+MSG_TYPE_TRANSFER_CHUNK = 23
+MSG_TYPE_TRANSFER_COMPLETE = 24
+
 
 def pack_message(msg_type: int, payload: dict | bytes) -> bytes:
     """Serializes a payload and prepends a fixed-size binary header.

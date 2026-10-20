@@ -10,6 +10,7 @@ import asyncio
 import json
 import logging
 import socket
+from pathlib import Path
 
 import click
 
@@ -20,11 +21,67 @@ from pylan.core.discovery import (
 )
 from pylan.core.protocol import (
     HEADER_SIZE,
+    MSG_TYPE_TRANSFER_ACCEPT,
+    MSG_TYPE_TRANSFER_CHUNK,
+    MSG_TYPE_TRANSFER_COMPLETE,
+    MSG_TYPE_TRANSFER_REJECT,
+    MSG_TYPE_TRANSFER_REQUEST,
     pack_message,
     unpack_header,
 )
 
 logger = logging.getLogger(__name__)
+
+
+async def handle_transfer(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+    initial_body: bytes,
+    output_dir: str,
+) -> None:
+    """Handle incoming file transfer stream."""
+    try:
+        meta = json.loads(initial_body.decode("utf-8"))
+        raw_name = meta.get("file_name", "unnamed_transfer")
+
+        safe_name = Path(raw_name).name
+        target_dir = Path(output_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        target_path = target_dir / safe_name
+
+        writer.write(pack_message(MSG_TYPE_TRANSFER_ACCEPT, {}))
+        await writer.drain()
+
+        with open(target_path, "wb") as out_file:
+            while True:
+                header_bytes = await reader.readexactly(HEADER_SIZE)
+                msg_type, length = unpack_header(header_bytes)
+                body = await reader.readexactly(length)
+
+                if msg_type == MSG_TYPE_TRANSFER_CHUNK:
+                    out_file.write(body)
+                elif msg_type == MSG_TYPE_TRANSFER_COMPLETE:
+                    break
+                else:
+                    logger.warning(
+                        "Unexpected transfer chunk type: %d", msg_type
+                    )
+                    return
+
+        click.secho(
+            f"\nReceived file '{safe_name}' -> {target_path}", fg="green"
+        )
+
+    except Exception as exc:
+        logger.debug("Transfer failed or was rejected: %s", exc)
+        try:
+            reject = pack_message(
+                MSG_TYPE_TRANSFER_REJECT, {"reason": str(exc)}
+            )
+            writer.write(reject)
+            await writer.drain()
+        except Exception:
+            pass
 
 
 async def handle_client(
@@ -65,6 +122,8 @@ async def handle_client(
             reply = pack_message(MSG_TYPE_PROBE_RESPONSE, response_payload)
             writer.write(reply)
             await writer.drain()
+        elif msg_type == MSG_TYPE_TRANSFER_REQUEST:
+            await handle_transfer(reader, writer, body, output_dir)
         else:
             logger.debug("Received unhandled message type: %d", msg_type)
     except (asyncio.IncompleteReadError, ConnectionResetError) as exc:
