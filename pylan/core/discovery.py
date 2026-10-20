@@ -413,19 +413,25 @@ class DiscoveryEngine:
         known_channels = known_channels or []
         count_before = len(self.store.all_devices())
 
-        await self.announce()
-        probe_tasks = [self.probe(ch.host, ch.port) for ch in known_channels]
-        if probe_tasks:
-            await asyncio.gather(*probe_tasks)
+        transport = await self.start_multicast_listener()
+        try:
+            await self.announce()
+            probe_tasks = [
+                self.probe(ch.host, ch.port) for ch in known_channels
+            ]
+            if probe_tasks:
+                await asyncio.gather(*probe_tasks)
 
-        await asyncio.sleep(grace_period)
+            await asyncio.sleep(grace_period)
 
-        if len(self.store.all_devices()) == count_before:
-            logger.info(
-                "No peers discovered via multicast/favorites. "
-                "Escalating to subnet sweep..."
-            )
-            scan_tasks = [self.scan_subnet(ip) for ip in interface_ips]
-            await asyncio.gather(*scan_tasks)
-
+            if len(self.store.all_devices()) == count_before:
+                logger.info(
+                    "No peers discovered via multicast/favorites. "
+                    "Escalating to subnet sweep..."
+                )
+                scan_tasks = [self.scan_subnet(ip) for ip in interface_ips]
+                await asyncio.gather(*scan_tasks)
+        finally:
+            if transport:
+                transport.close()
         return self.store.all_devices()

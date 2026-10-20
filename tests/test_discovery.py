@@ -291,7 +291,13 @@ class TestDiscoveryEngineAsync(unittest.IsolatedAsyncioTestCase):
                 "peer-fingerprint"
             )
 
+        mock_transport = Mock()
         with (
+            patch.object(
+                self.engine,
+                "start_multicast_listener",
+                new=AsyncMock(return_value=mock_transport),
+            ),
             patch.object(self.engine, "announce", new=AsyncMock()),
             patch.object(self.engine, "probe", side_effect=find_peer),
             patch.object(self.engine, "scan_subnet", new=AsyncMock()) as scan,
@@ -303,10 +309,17 @@ class TestDiscoveryEngineAsync(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(len(results), 1)
         scan.assert_not_awaited()
+        mock_transport.close.assert_called_once()
 
     async def test_discover_staged_sweeps_when_no_peer_is_found(self):
         """Escalate to each configured interface after an empty first stage."""
+        mock_transport = Mock()
         with (
+            patch.object(
+                self.engine,
+                "start_multicast_listener",
+                new=AsyncMock(return_value=mock_transport),
+            ),
             patch.object(self.engine, "announce", new=AsyncMock()),
             patch.object(self.engine, "scan_subnet", new=AsyncMock()) as scan,
             patch("pylan.core.discovery.asyncio.sleep", new=AsyncMock()),
@@ -319,6 +332,7 @@ class TestDiscoveryEngineAsync(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(scan.await_count, 2)
         scan.assert_any_await("192.0.2.1")
         scan.assert_any_await("198.51.100.1")
+        mock_transport.close.assert_called_once()
 
 
 if __name__ == "__main__":

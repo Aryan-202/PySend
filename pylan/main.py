@@ -1,5 +1,8 @@
+from pylan.cli.cli import cli
+
+
 def main():
-    print("project python pylan")
+    cli()
 
 
 if __name__ == "__main__":
