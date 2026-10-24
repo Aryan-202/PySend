@@ -58,7 +58,7 @@ class DiscoveryProtocol(asyncio.DatagramProtocol):
                 source (host, port) tuple.
         """
         self.on_message = on_message
-        self.transport: Optional[asyncio.DatagramTransport] = None
+        self.transport: Optional[asyncio.BaseTransport] = None
 
     def connection_made(self, transport: asyncio.BaseTransport) -> None:
         """Invoked when the underlying datagram endpoint socket is established.

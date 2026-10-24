@@ -6,7 +6,7 @@ from pylan.cli.send import send
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """PyLan - Local network file transfer tool."""
     pass
 
